@@ -1,2 +1,7 @@
 dida365-cli/
 .DS_Store
+web/.next/
+web/node_modules/
+web/.env
+web/.env.*
+web/.vercel/
