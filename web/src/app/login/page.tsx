@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 
 import { buttonVariants } from "@/components/ui/button"
@@ -16,10 +17,21 @@ const errorMap: Record<string, string> = {
   token_exchange_failed: "Dida365 did not issue an access token. Check your app credentials and redirect URI.",
 }
 
-export default function LoginPage() {
+function LoginError() {
   const searchParams = useSearchParams()
   const error = searchParams.get("error")
   const errorMessage = error ? errorMap[error] ?? "Sign in failed." : null
+
+  if (!errorMessage) return null
+
+  return (
+    <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+      {errorMessage}
+    </div>
+  )
+}
+
+export default function LoginPage() {
 
   return (
     <div className="grid min-h-screen grid-cols-1 bg-background lg:grid-cols-[1.25fr_0.95fr]">
@@ -37,8 +49,8 @@ export default function LoginPage() {
                 not the noise.
               </h1>
               <p className="max-w-lg text-base leading-7 text-muted-foreground">
-                Dashboard, calendar, project drill-down, and lightweight task actions,
-                wrapped in a restrained black-and-white interface.
+                Project task list, calendar views, inline task creation, and full
+                task editing — wrapped in a restrained black-and-white interface.
               </p>
             </div>
           </div>
@@ -47,12 +59,10 @@ export default function LoginPage() {
               Included views
             </p>
             <div className="mt-5 grid grid-cols-2 gap-3 text-sm text-muted-foreground">
-              <p>Dashboard overview</p>
+              <p>Project task list</p>
               <p>Month + week calendar</p>
-              <p>Todo table filters</p>
-              <p>Project kanban lanes</p>
-              <p>Project detail tabs</p>
-              <p>Completed history</p>
+              <p>Inline task creation</p>
+              <p>Full task editing</p>
             </div>
           </div>
         </div>
@@ -74,11 +84,9 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {errorMessage ? (
-              <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                {errorMessage}
-              </div>
-            ) : null}
+            <Suspense>
+              <LoginError />
+            </Suspense>
 
             <div className="space-y-4">
               <Link

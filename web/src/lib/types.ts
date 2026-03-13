@@ -37,6 +37,22 @@ export interface Project {
   kind: string
 }
 
+export interface ProjectCreate {
+  name: string
+  color?: string
+  kind?: "TASK" | "NOTE"
+  viewMode?: "list" | "kanban" | "timeline"
+}
+
+export interface ProjectUpdate {
+  name?: string
+  color?: string
+  viewMode?: "list" | "kanban" | "timeline"
+  sortOrder?: number
+  kind?: string
+  closed?: boolean
+}
+
 export interface Column {
   id: string
   projectId: string

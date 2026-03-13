@@ -1,5 +1,5 @@
 import { DIDA_BASE_URL } from "@/lib/session"
-import type { Project, ProjectData, Task, TaskCreate, TaskUpdate } from "@/lib/types"
+import type { Project, ProjectCreate, ProjectData, ProjectUpdate, Task, TaskCreate, TaskUpdate } from "@/lib/types"
 
 type JsonValue = Record<string, unknown> | unknown[] | string | number | boolean | null
 
@@ -120,6 +120,18 @@ export class DidaClient {
 
   async listProjects() {
     return this.request<Project[]>("GET", "/open/v1/project")
+  }
+
+  async createProject(project: ProjectCreate) {
+    return this.request<Project>("POST", "/open/v1/project", project)
+  }
+
+  async updateProject(projectId: string, project: ProjectUpdate) {
+    return this.request<Project>("POST", `/open/v1/project/${projectId}`, project)
+  }
+
+  async deleteProject(projectId: string) {
+    await this.request<void>("DELETE", `/open/v1/project/${projectId}`)
   }
 
   async getInboxId(): Promise<string | null> {

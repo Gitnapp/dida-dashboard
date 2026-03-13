@@ -24,67 +24,56 @@ export function WeekView({
   const weekDays = getWeekDays(currentDate)
 
   return (
-    <div className="surface overflow-hidden rounded-[1.75rem] border">
-      <div className="flex items-center justify-between border-b border-border/70 px-5 py-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
-            Week view
-          </p>
-          <h2 className="text-3xl leading-none">{format(currentDate, "'Week of' MMM d")}</h2>
-        </div>
-        <div className="flex items-center gap-2">
+    <div>
+      <div className="flex items-center justify-between border-b border-border px-6 py-3">
+        <h2 className="text-lg font-medium">Week of {format(currentDate, "MMM d")}</h2>
+        <div className="flex items-center gap-1">
           <Button
             aria-label="Previous week"
             onClick={() => onWeekChange(subWeeks(currentDate, 1))}
-            size="icon-sm"
-            variant="outline"
+            size="icon"
+            variant="ghost"
+            className="size-8"
           >
-            <ChevronLeftIcon />
+            <ChevronLeftIcon className="size-4" />
           </Button>
           <Button
             aria-label="Next week"
             onClick={() => onWeekChange(addWeeks(currentDate, 1))}
-            size="icon-sm"
-            variant="outline"
+            size="icon"
+            variant="ghost"
+            className="size-8"
           >
-            <ChevronRightIcon />
+            <ChevronRightIcon className="size-4" />
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-px bg-border/70 lg:grid-cols-7">
+      <div className="grid grid-cols-7 divide-x divide-border">
         {weekDays.map((day) => {
           const tasksForDay = getTasksForDay(tasks, day)
 
           return (
             <button
               key={day.toISOString()}
-              className="min-h-72 bg-background px-4 py-4 text-left transition-colors hover:bg-accent/40"
+              className="min-h-[calc(100vh-12rem)] px-3 py-3 text-left transition-colors hover:bg-accent/20"
               onClick={() => onDateSelect(day)}
               type="button"
             >
-              <div className="space-y-1">
-                <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-                  {format(day, "EEE")}
-                </p>
-                <p className={cn("text-3xl leading-none", isToday(day) && "underline underline-offset-8")}>
-                  {format(day, "d")}
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground">{format(day, "EEE")}</p>
+              <p className={cn("text-2xl", isToday(day) && "font-bold")}>
+                {format(day, "d")}
+              </p>
 
-              <div className="mt-5 space-y-2">
-                {tasksForDay.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Nothing due.</p>
-                ) : (
-                  tasksForDay.map((task) => (
-                    <div
-                      key={task.id}
-                      className="rounded-2xl border border-border/70 bg-card px-3 py-2 text-sm"
-                    >
-                      <p className="line-clamp-2 leading-5">{task.title}</p>
-                    </div>
-                  ))
-                )}
+              <div className="mt-3 space-y-1.5">
+                {tasksForDay.map((task) => (
+                  <div
+                    key={task.id}
+                    className="rounded-md border border-border bg-card px-2.5 py-1.5 text-sm"
+                  >
+                    <p className="line-clamp-2 leading-snug">{task.title}</p>
+                  </div>
+                ))}
               </div>
             </button>
           )

@@ -132,9 +132,6 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background-image:
-      radial-gradient(circle at top left, oklch(0.96 0 0 / 0.9), transparent 34rem),
-      linear-gradient(180deg, oklch(1 0 0), oklch(0.985 0 0));
     min-height: 100vh;
   }
   h1,
@@ -145,7 +142,7 @@
     letter-spacing: -0.04em;
   }
   ::selection {
-    background: color-mix(in oklab, var(--foreground) 12%, white);
+    background: color-mix(in oklab, var(--foreground) 12%, transparent);
   }
 }
 
