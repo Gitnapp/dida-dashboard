@@ -22,7 +22,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { TaskItem } from "@/components/tasks/task-item"
-import { getCompletedTasksForDay, getProjectSelectOptions, getTasksForDay } from "@/lib/task-utils"
+import { getAllTasksForDay, getDueDateStatus, getProjectSelectOptions } from "@/lib/task-utils"
 import type { Project, Task } from "@/lib/types"
 
 interface DatePanelProps {
@@ -46,8 +46,7 @@ export function DatePanel({
   onCreate,
   onDelete,
 }: DatePanelProps) {
-  const tasksForDay = date ? getTasksForDay(tasks, date) : []
-  const completedForDay = date ? getCompletedTasksForDay(tasks, date) : []
+  const allTasksForDay = date ? getAllTasksForDay(tasks, date) : []
   const projectOptions = getProjectSelectOptions(projects)
   const [title, setTitle] = useState("")
   const [projectId, setProjectId] = useState(projects?.[0]?.id ?? "")
@@ -96,7 +95,7 @@ export function DatePanel({
         <SheetHeader>
           <SheetTitle>{date ? format(date, "EEEE, MMMM d") : "No date selected"}</SheetTitle>
           <SheetDescription>
-            {tasksForDay.length} active, {completedForDay.length} completed on this date.
+            {allTasksForDay.length} task{allTasksForDay.length !== 1 ? "s" : ""} on this date.
           </SheetDescription>
         </SheetHeader>
 
@@ -134,47 +133,32 @@ export function DatePanel({
           ) : null}
 
           <div className="space-y-2">
-            {tasksForDay.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No active tasks on this date.</p>
+            {allTasksForDay.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No tasks on this date.</p>
             ) : (
-              tasksForDay.map((task) => (
+              allTasksForDay.map((task) => (
                 <div key={task.id} className="group/task relative">
                   <TaskItem
-                    onComplete={onComplete}
+                    onComplete={task.status !== 2 ? onComplete : undefined}
                     projectName={projectNames.get(task.projectId)}
                     showProject
+                    statusLabel={getDueDateStatus(task) ?? undefined}
                     task={task}
                   />
-                  <button
-                    className="absolute right-2 top-2 rounded-md p-1.5 text-muted-foreground opacity-0 transition-all hover:bg-destructive/10 hover:text-destructive group-hover/task:opacity-100 disabled:opacity-50"
-                    disabled={deletingId === task.id}
-                    onClick={() => handleDelete(task)}
-                    type="button"
-                  >
-                    <Trash2Icon className="size-3.5" />
-                  </button>
+                  {task.status !== 2 ? (
+                    <button
+                      className="absolute right-2 top-2 rounded-md p-1.5 text-muted-foreground opacity-0 transition-all hover:bg-destructive/10 hover:text-destructive group-hover/task:opacity-100 disabled:opacity-50"
+                      disabled={deletingId === task.id}
+                      onClick={() => handleDelete(task)}
+                      type="button"
+                    >
+                      <Trash2Icon className="size-3.5" />
+                    </button>
+                  ) : null}
                 </div>
               ))
             )}
           </div>
-
-          {completedForDay.length > 0 ? (
-            <div className="mt-4">
-              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground/60">
-                Completed
-              </p>
-              <div className="space-y-1.5">
-                {completedForDay.map((task) => (
-                  <div
-                    key={task.id}
-                    className="rounded-md border border-border/50 px-3 py-2 text-sm text-muted-foreground/50 line-through"
-                  >
-                    {task.title}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
         </ScrollArea>
       </SheetContent>
     </Sheet>

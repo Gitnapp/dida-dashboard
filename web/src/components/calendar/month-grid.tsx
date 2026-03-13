@@ -16,7 +16,7 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { getCompletedTasksForDay, getTasksForDay } from "@/lib/task-utils"
+import { getAllTasksForDay } from "@/lib/task-utils"
 import type { Task } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -77,12 +77,7 @@ export function MonthGrid({
 
       <div className="grid grid-cols-7">
         {days.map((day) => {
-          const dayTasks = getTasksForDay(tasks, day)
-          const completedTasks = getCompletedTasksForDay(tasks, day)
-          const totalVisible = Math.min(dayTasks.length, 3)
-          const remainingSlots = 3 - totalVisible
-          const visibleCompleted = completedTasks.slice(0, remainingSlots)
-          const totalCount = dayTasks.length + completedTasks.length
+          const allTasks = getAllTasksForDay(tasks, day)
           const isSelected = selectedDate ? isSameDay(day, selectedDate) : false
 
           return (
@@ -96,36 +91,24 @@ export function MonthGrid({
               onClick={() => onDateSelect(day)}
               type="button"
             >
-              <span
-                className={cn(
-                  "text-sm",
-                  isToday(day) && "font-bold text-foreground",
-                )}
-              >
+              <span className={cn("text-sm", isToday(day) && "font-bold text-foreground")}>
                 {format(day, "d")}
               </span>
 
               <div className="mt-1 space-y-0.5">
-                {dayTasks.slice(0, 3).map((task) => (
+                {allTasks.slice(0, 3).map((task) => (
                   <div
                     key={task.id}
-                    className="truncate rounded px-1.5 py-0.5 text-xs text-muted-foreground"
+                    className={cn(
+                      "truncate rounded px-1.5 py-0.5 text-xs text-muted-foreground",
+                      task.status === 2 && "text-muted-foreground/40 line-through",
+                    )}
                   >
                     {task.title}
                   </div>
                 ))}
-                {visibleCompleted.map((task) => (
-                  <div
-                    key={task.id}
-                    className="truncate rounded px-1.5 py-0.5 text-xs text-muted-foreground/40 line-through"
-                  >
-                    {task.title}
-                  </div>
-                ))}
-                {totalCount > 3 ? (
-                  <p className="px-1.5 text-xs text-muted-foreground/60">
-                    +{totalCount - 3}
-                  </p>
+                {allTasks.length > 3 ? (
+                  <p className="px-1.5 text-xs text-muted-foreground/60">+{allTasks.length - 3}</p>
                 ) : null}
               </div>
             </button>

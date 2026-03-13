@@ -2,6 +2,7 @@ import {
   addDays,
   compareAsc,
   compareDesc,
+  differenceInCalendarDays,
   endOfDay,
   endOfWeek,
   format,
@@ -100,10 +101,14 @@ export function getRecentCompletions(tasks: Task[], limit = 10) {
     .slice(0, limit)
 }
 
+function getTaskAnchorDate(task: Task): Date | null {
+  return parseDidaDate(task.dueDate) ?? parseDidaDate(task.createdTime) ?? getCreationDateFromId(task.id)
+}
+
 export function getTasksForDay(tasks: Task[], day: Date) {
   return getActiveTasks(tasks)
     .filter((task) => {
-      const anchor = parseDidaDate(task.dueDate) ?? parseDidaDate(task.createdTime) ?? getCreationDateFromId(task.id)
+      const anchor = getTaskAnchorDate(task)
       return anchor ? isSameDay(anchor, day) : false
     })
     .sort(comparePriorityThenDate)
@@ -112,15 +117,26 @@ export function getTasksForDay(tasks: Task[], day: Date) {
 export function getCompletedTasksForDay(tasks: Task[], day: Date) {
   return getCompletedTasks(tasks)
     .filter((task) => {
-      const anchor = parseDidaDate(task.completedTime) ?? parseDidaDate(task.createdTime) ?? getCreationDateFromId(task.id)
+      const anchor = getTaskAnchorDate(task)
       return anchor ? isSameDay(anchor, day) : false
     })
-    .sort((a, b) => {
-      const aDate = parseDidaDate(a.completedTime)
-      const bDate = parseDidaDate(b.completedTime)
-      if (!aDate || !bDate) return 0
-      return compareDesc(aDate, bDate)
-    })
+}
+
+export function getAllTasksForDay(tasks: Task[], day: Date) {
+  const active = getTasksForDay(tasks, day)
+  const completed = getCompletedTasksForDay(tasks, day)
+  return [...active, ...completed]
+}
+
+export function getDueDateStatus(task: Task, now = new Date()): string | null {
+  if (task.status === 2) return "已完成"
+  if (!task.dueDate) return null
+  const due = parseDidaDate(task.dueDate)
+  if (!due) return null
+  const diff = differenceInCalendarDays(due, now)
+  if (diff === 0) return "今天到期"
+  if (diff > 0) return `${diff} 天后`
+  return `逾期 ${-diff} 天`
 }
 
 export function groupTasksByDueDate(tasks: Task[]) {

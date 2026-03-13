@@ -13,6 +13,7 @@ interface TaskItemProps {
   showProject?: boolean
   showDueDate?: boolean
   showCompletedTime?: boolean
+  statusLabel?: string
   compact?: boolean
   onComplete?: (task: Task) => void | Promise<void>
 }
@@ -23,6 +24,7 @@ export function TaskItem({
   showProject = false,
   showDueDate = true,
   showCompletedTime = false,
+  statusLabel,
   compact = false,
   onComplete,
 }: TaskItemProps) {
@@ -71,6 +73,18 @@ export function TaskItem({
           {showDueDate && task.dueDate ? <span>Due {formatTaskDate(task.dueDate)}</span> : null}
           {showCompletedTime && task.completedTime ? (
             <span>Done {formatTaskDateTime(task.completedTime)}</span>
+          ) : null}
+          {statusLabel ? (
+            <span
+              className={cn(
+                "font-medium",
+                statusLabel === "已完成" && "text-muted-foreground/60",
+                statusLabel.startsWith("逾期") && "text-destructive",
+                statusLabel === "今天到期" && "text-orange-400",
+              )}
+            >
+              {statusLabel}
+            </span>
           ) : null}
         </div>
       </div>

@@ -4,7 +4,7 @@ import { addWeeks, format, isToday, subWeeks } from "date-fns"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { getCompletedTasksForDay, getTasksForDay, getWeekDays } from "@/lib/task-utils"
+import { getAllTasksForDay, getWeekDays } from "@/lib/task-utils"
 import type { Task } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -51,8 +51,7 @@ export function WeekView({
 
       <div className="grid grid-cols-7 divide-x divide-border">
         {weekDays.map((day) => {
-          const tasksForDay = getTasksForDay(tasks, day)
-          const completedForDay = getCompletedTasksForDay(tasks, day)
+          const allTasks = getAllTasksForDay(tasks, day)
 
           return (
             <button
@@ -67,20 +66,22 @@ export function WeekView({
               </p>
 
               <div className="mt-3 space-y-1.5">
-                {tasksForDay.map((task) => (
+                {allTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="rounded-md border border-border bg-card px-2.5 py-1.5 text-sm"
+                    className={cn(
+                      "rounded-md border px-2.5 py-1.5 text-sm",
+                      task.status === 2
+                        ? "border-border/50 bg-card/50"
+                        : "border-border bg-card",
+                    )}
                   >
-                    <p className="line-clamp-2 leading-snug">{task.title}</p>
-                  </div>
-                ))}
-                {completedForDay.map((task) => (
-                  <div
-                    key={task.id}
-                    className="rounded-md border border-border/50 bg-card/50 px-2.5 py-1.5 text-sm"
-                  >
-                    <p className="line-clamp-2 leading-snug text-muted-foreground/50 line-through">
+                    <p
+                      className={cn(
+                        "line-clamp-2 leading-snug",
+                        task.status === 2 && "text-muted-foreground/50 line-through",
+                      )}
+                    >
                       {task.title}
                     </p>
                   </div>
