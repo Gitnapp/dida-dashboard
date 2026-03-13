@@ -1,5 +1,14 @@
 import { format, isValid, parseISO, startOfDay } from "date-fns"
 
+// Dida365 task IDs are MongoDB ObjectIDs: first 4 bytes (8 hex chars) = Unix timestamp in seconds
+export function getCreationDateFromId(id: string): Date | null {
+  if (id.length < 8) return null
+  const timestamp = parseInt(id.substring(0, 8), 16)
+  if (isNaN(timestamp) || timestamp <= 0) return null
+  const date = new Date(timestamp * 1000)
+  return isValid(date) ? date : null
+}
+
 function normalizeTimezoneOffset(value: string) {
   return value.replace(/([+-]\d{2})(\d{2})$/, "$1:$2")
 }

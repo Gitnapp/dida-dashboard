@@ -7,6 +7,7 @@ export interface Task {
   priority: number
   dueDate?: string
   completedTime?: string
+  createdTime?: string
   sortOrder: number
   columnId?: string
   startDate?: string

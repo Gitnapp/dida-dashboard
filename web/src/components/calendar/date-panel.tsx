@@ -22,7 +22,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { TaskItem } from "@/components/tasks/task-item"
-import { getProjectSelectOptions, getTasksForDay } from "@/lib/task-utils"
+import { getCompletedTasksForDay, getProjectSelectOptions, getTasksForDay } from "@/lib/task-utils"
 import type { Project, Task } from "@/lib/types"
 
 interface DatePanelProps {
@@ -47,6 +47,7 @@ export function DatePanel({
   onDelete,
 }: DatePanelProps) {
   const tasksForDay = date ? getTasksForDay(tasks, date) : []
+  const completedForDay = date ? getCompletedTasksForDay(tasks, date) : []
   const projectOptions = getProjectSelectOptions(projects)
   const [title, setTitle] = useState("")
   const [projectId, setProjectId] = useState(projects?.[0]?.id ?? "")
@@ -95,7 +96,7 @@ export function DatePanel({
         <SheetHeader>
           <SheetTitle>{date ? format(date, "EEEE, MMMM d") : "No date selected"}</SheetTitle>
           <SheetDescription>
-            {tasksForDay.length} task{tasksForDay.length !== 1 ? "s" : ""} on this date.
+            {tasksForDay.length} active, {completedForDay.length} completed on this date.
           </SheetDescription>
         </SheetHeader>
 
@@ -156,6 +157,24 @@ export function DatePanel({
               ))
             )}
           </div>
+
+          {completedForDay.length > 0 ? (
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground/60">
+                Completed
+              </p>
+              <div className="space-y-1.5">
+                {completedForDay.map((task) => (
+                  <div
+                    key={task.id}
+                    className="rounded-md border border-border/50 px-3 py-2 text-sm text-muted-foreground/50 line-through"
+                  >
+                    {task.title}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </ScrollArea>
       </SheetContent>
     </Sheet>

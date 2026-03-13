@@ -16,7 +16,7 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { getTasksForDay } from "@/lib/task-utils"
+import { getCompletedTasksForDay, getTasksForDay } from "@/lib/task-utils"
 import type { Task } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -78,6 +78,11 @@ export function MonthGrid({
       <div className="grid grid-cols-7">
         {days.map((day) => {
           const dayTasks = getTasksForDay(tasks, day)
+          const completedTasks = getCompletedTasksForDay(tasks, day)
+          const totalVisible = Math.min(dayTasks.length, 3)
+          const remainingSlots = 3 - totalVisible
+          const visibleCompleted = completedTasks.slice(0, remainingSlots)
+          const totalCount = dayTasks.length + completedTasks.length
           const isSelected = selectedDate ? isSameDay(day, selectedDate) : false
 
           return (
@@ -109,9 +114,17 @@ export function MonthGrid({
                     {task.title}
                   </div>
                 ))}
-                {dayTasks.length > 3 ? (
+                {visibleCompleted.map((task) => (
+                  <div
+                    key={task.id}
+                    className="truncate rounded px-1.5 py-0.5 text-xs text-muted-foreground/40 line-through"
+                  >
+                    {task.title}
+                  </div>
+                ))}
+                {totalCount > 3 ? (
                   <p className="px-1.5 text-xs text-muted-foreground/60">
-                    +{dayTasks.length - 3}
+                    +{totalCount - 3}
                   </p>
                 ) : null}
               </div>

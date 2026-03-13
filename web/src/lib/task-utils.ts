@@ -11,7 +11,7 @@ import {
   startOfWeek,
 } from "date-fns"
 
-import { getTaskDayKey, parseDidaDate } from "@/lib/date"
+import { getCreationDateFromId, getTaskDayKey, parseDidaDate } from "@/lib/date"
 import type { Project, ProjectData, Task } from "@/lib/types"
 
 export function collectAllTasks(projectsData?: Map<string, ProjectData>) {
@@ -103,10 +103,24 @@ export function getRecentCompletions(tasks: Task[], limit = 10) {
 export function getTasksForDay(tasks: Task[], day: Date) {
   return getActiveTasks(tasks)
     .filter((task) => {
-      const dueDate = parseDidaDate(task.dueDate)
-      return dueDate ? isSameDay(dueDate, day) : false
+      const anchor = parseDidaDate(task.dueDate) ?? parseDidaDate(task.createdTime) ?? getCreationDateFromId(task.id)
+      return anchor ? isSameDay(anchor, day) : false
     })
     .sort(comparePriorityThenDate)
+}
+
+export function getCompletedTasksForDay(tasks: Task[], day: Date) {
+  return getCompletedTasks(tasks)
+    .filter((task) => {
+      const anchor = parseDidaDate(task.completedTime) ?? parseDidaDate(task.createdTime) ?? getCreationDateFromId(task.id)
+      return anchor ? isSameDay(anchor, day) : false
+    })
+    .sort((a, b) => {
+      const aDate = parseDidaDate(a.completedTime)
+      const bDate = parseDidaDate(b.completedTime)
+      if (!aDate || !bDate) return 0
+      return compareDesc(aDate, bDate)
+    })
 }
 
 export function groupTasksByDueDate(tasks: Task[]) {
