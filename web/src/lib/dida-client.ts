@@ -165,18 +165,18 @@ export class DidaClient {
     const privateData = await privateRequest<{ inboxId?: string }>("/batch/check/0")
     if (privateData?.inboxId) return privateData.inboxId
 
-    // Derive inbox ID from user profile via the open API (works on Vercel)
+    // Use the open API "inbox" alias to discover the real inbox ID from task data.
+    // Falls back to the literal "inbox" ID if the inbox is empty.
     try {
-      const profile = await this.request<{ userId?: string; username?: string }>(
+      const data = await this.request<{ tasks?: Array<{ projectId?: string }> }>(
         "GET",
-        "/open/v1/user/me",
+        "/open/v1/project/inbox/data",
       )
-      if (profile?.userId) return `inbox${profile.userId}`
+      const realId = data?.tasks?.find((t) => t.projectId?.startsWith("inbox"))?.projectId
+      return realId ?? "inbox"
     } catch {
-      // endpoint may not exist or token may be invalid; fall through
+      return null
     }
-
-    return null
   }
 
   async getCompletedTasks(from: string, to: string, limit = 100): Promise<Task[]> {
