@@ -157,6 +157,11 @@ export class DidaClient {
   }
 
   async getInboxId(): Promise<string | null> {
+    // Allow overriding via environment variable (useful for Vercel deployments
+    // where the local CLI token file is not available)
+    const envInboxId = process.env.DIDA_INBOX_ID
+    if (envInboxId) return envInboxId
+
     const data = await privateRequest<{ inboxId?: string }>("/batch/check/0", this.accessToken)
     return data?.inboxId ?? null
   }
