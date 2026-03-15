@@ -206,10 +206,10 @@ export default function ProjectsPage() {
   return (
     <div className="flex h-full">
       {/* Sidebar */}
-      <aside className="w-64 shrink-0 overflow-y-auto border-r border-border">
-        <div className="space-y-3 p-2">
-          <form className="space-y-2 rounded-lg border border-border p-2" onSubmit={handleCreateProject}>
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+      <aside className="grid-hairline w-72 shrink-0 overflow-y-auto border-r border-border">
+        <div className="space-y-3 p-3">
+          <form className="space-y-2 rounded-lg border border-border/80 bg-background/60 p-2.5" onSubmit={handleCreateProject}>
+            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
               <FolderPlusIcon className="size-3.5" />
               <span>New project</span>
             </div>
@@ -235,10 +235,10 @@ export default function ProjectsPage() {
                 <div
                   key={project.id}
                   className={cn(
-                    "rounded-lg transition-colors",
+                    "group/project rounded-lg transition-colors",
                     isSelected
                       ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                      : "text-muted-foreground hover:bg-accent/40 hover:text-foreground",
                   )}
                 >
                   <div className="flex items-center gap-1 px-2 py-1.5">
@@ -278,7 +278,7 @@ export default function ProjectsPage() {
                     )}
 
                     {!isInbox ? (
-                      <>
+                      <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover/project:opacity-100">
                         <Button
                           disabled={isProjectPending}
                           onClick={() => {
@@ -302,7 +302,7 @@ export default function ProjectsPage() {
                         >
                           <Trash2Icon className="size-3.5" />
                         </Button>
-                      </>
+                      </div>
                     ) : null}
                   </div>
                 </div>
@@ -325,12 +325,12 @@ export default function ProjectsPage() {
         ) : null}
 
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-3xl px-6 py-6">
+          <div className="mx-auto max-w-3xl px-8 py-8">
             {/* Project header */}
             {projectData ? (
-              <div className="mb-6">
-                <h2 className="text-2xl">{projectData.project.name}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+              <div className="mb-8">
+                <h2 className="text-3xl">{projectData.project.name}</h2>
+                <p className="mt-1.5 text-sm text-muted-foreground">
                   {activeTasks.length} active{completedTasks.length > 0 ? ` · ${completedTasks.length} completed` : ""}
                 </p>
               </div>

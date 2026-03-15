@@ -93,7 +93,7 @@ export function DatePanel({
     <Sheet open={Boolean(date)} onOpenChange={(open) => !open && onClose()}>
       <SheetContent className="w-full sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>{date ? format(date, "EEEE, MMMM d") : "No date selected"}</SheetTitle>
+          <SheetTitle className="font-display text-xl">{date ? format(date, "EEEE, MMMM d") : "No date selected"}</SheetTitle>
           <SheetDescription>
             {allTasksForDay.length} task{allTasksForDay.length !== 1 ? "s" : ""} on this date.
           </SheetDescription>

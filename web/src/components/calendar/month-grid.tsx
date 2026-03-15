@@ -43,8 +43,8 @@ export function MonthGrid({
 
   return (
     <div>
-      <div className="flex items-center justify-between border-b border-border px-6 py-3">
-        <h2 className="text-lg font-medium">{format(currentDate, "MMMM yyyy")}</h2>
+      <div className="flex items-center justify-between border-b border-border px-6 py-4">
+        <h2 className="text-2xl">{format(currentDate, "MMMM yyyy")}</h2>
         <div className="flex items-center gap-1">
           <Button
             aria-label="Previous month"
@@ -91,7 +91,12 @@ export function MonthGrid({
               onClick={() => onDateSelect(day)}
               type="button"
             >
-              <span className={cn("text-sm", isToday(day) && "font-bold text-foreground")}>
+              <span
+                className={cn(
+                  "inline-flex size-7 items-center justify-center rounded-full text-sm",
+                  isToday(day) && "bg-foreground font-bold text-background",
+                )}
+              >
                 {format(day, "d")}
               </span>
 

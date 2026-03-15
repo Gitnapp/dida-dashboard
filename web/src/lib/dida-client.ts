@@ -43,8 +43,8 @@ async function loadCliToken(): Promise<string | null> {
   return cachedCliToken
 }
 
-async function privateRequest<T>(path: string): Promise<T | null> {
-  const token = await loadCliToken()
+async function privateRequest<T>(path: string, fallbackToken?: string): Promise<T | null> {
+  const token = (await loadCliToken()) ?? fallbackToken
   if (!token) return null
 
   const response = await fetch(`${PRIVATE_API_BASE}${path}`, {
@@ -135,7 +135,7 @@ export class DidaClient {
   }
 
   async getInboxId(): Promise<string | null> {
-    const data = await privateRequest<{ inboxId?: string }>("/batch/check/0")
+    const data = await privateRequest<{ inboxId?: string }>("/batch/check/0", this.accessToken)
     return data?.inboxId ?? null
   }
 

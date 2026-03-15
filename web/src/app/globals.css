@@ -157,4 +157,9 @@
       linear-gradient(to bottom, color-mix(in oklab, var(--border) 75%, transparent) 1px, transparent 1px);
     background-size: 24px 24px;
   }
+
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.04em;
+  }
 }

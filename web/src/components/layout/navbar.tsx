@@ -23,22 +23,25 @@ export function Navbar() {
   const pathname = usePathname()
 
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-4">
-      <span className="text-sm font-medium tracking-wide">Dida</span>
+    <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-6">
+      <span className="font-display text-lg">Dida</span>
 
-      <nav className="flex items-center gap-1">
+      <nav className="flex items-center gap-6">
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm transition-colors",
+              "relative py-1 text-sm transition-colors",
               isActive(pathname, item.href)
-                ? "bg-accent text-accent-foreground"
+                ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
             {item.label}
+            {isActive(pathname, item.href) ? (
+              <span className="absolute -bottom-[19px] left-0 right-0 h-px bg-foreground" />
+            ) : null}
           </Link>
         ))}
       </nav>

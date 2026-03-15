@@ -25,8 +25,8 @@ export function WeekView({
 
   return (
     <div>
-      <div className="flex items-center justify-between border-b border-border px-6 py-3">
-        <h2 className="text-lg font-medium">Week of {format(currentDate, "MMM d")}</h2>
+      <div className="flex items-center justify-between border-b border-border px-6 py-4">
+        <h2 className="text-2xl">Week of {format(currentDate, "MMM d")}</h2>
         <div className="flex items-center gap-1">
           <Button
             aria-label="Previous week"
@@ -61,9 +61,14 @@ export function WeekView({
               type="button"
             >
               <p className="text-xs text-muted-foreground">{format(day, "EEE")}</p>
-              <p className={cn("text-2xl", isToday(day) && "font-bold")}>
+              <span
+                className={cn(
+                  "font-display inline-flex size-10 items-center justify-center rounded-full text-2xl",
+                  isToday(day) && "bg-foreground font-bold text-background",
+                )}
+              >
                 {format(day, "d")}
-              </p>
+              </span>
 
               <div className="mt-3 space-y-1.5">
                 {allTasks.map((task) => (
