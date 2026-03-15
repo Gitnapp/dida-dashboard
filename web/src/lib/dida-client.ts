@@ -3,60 +3,6 @@ import type { Project, ProjectCreate, ProjectData, ProjectUpdate, Task, TaskCrea
 
 type JsonValue = Record<string, unknown> | unknown[] | string | number | boolean | null
 
-const PRIVATE_API_BASE = "https://api.dida365.com/api/v2"
-const PRIVATE_HEADERS = {
-  "Content-Type": "application/json",
-  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:95.0) Gecko/20100101 Firefox/95.0",
-  "x-device": JSON.stringify({
-    platform: "web",
-    os: "OS X",
-    device: "Firefox 95.0",
-    name: "dida365-dashboard",
-    version: 4531,
-    channel: "website",
-    campaign: "",
-    websocket: "",
-  }),
-}
-
-let cachedCliToken: string | null | undefined
-
-async function loadCliToken(): Promise<string | null> {
-  if (cachedCliToken !== undefined) {
-    return cachedCliToken
-  }
-
-  try {
-    const { readFile } = await import("fs/promises")
-    const { join } = await import("path")
-    const { homedir } = await import("os")
-
-    const raw = JSON.parse(
-      await readFile(join(homedir(), ".dida365", "token.json"), "utf-8"),
-    ) as { token?: string }
-
-    cachedCliToken = raw.token ?? null
-  } catch {
-    cachedCliToken = null
-  }
-
-  return cachedCliToken
-}
-
-async function privateRequest<T>(path: string): Promise<T | null> {
-  const token = await loadCliToken()
-  if (!token) return null
-
-  const response = await fetch(`${PRIVATE_API_BASE}${path}`, {
-    headers: { ...PRIVATE_HEADERS, Cookie: `t=${token}` },
-    cache: "no-store",
-  })
-
-  if (!response.ok) return null
-  const text = await response.text()
-  return text ? (JSON.parse(text) as T) : null
-}
-
 function readErrorMessage(status: number, payload: JsonValue | undefined) {
   if (payload && typeof payload === "object" && !Array.isArray(payload) && "error" in payload) {
     const errorValue = payload.error
@@ -144,12 +90,6 @@ export class DidaClient {
     } catch {
       return null
     }
-  }
-
-  async getCompletedTasks(from: string, to: string, limit = 100): Promise<Task[]> {
-    const params = new URLSearchParams({ from, to, limit: String(limit) })
-    const data = await privateRequest<Task[]>(`/project/all/completed?${params}`)
-    return data ?? []
   }
 
   async getProjectData(projectId: string) {

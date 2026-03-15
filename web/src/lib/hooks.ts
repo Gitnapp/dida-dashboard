@@ -3,7 +3,7 @@
 import useSWR from "swr"
 
 import { apiFetch } from "@/lib/api-fetch"
-import type { Project, ProjectData, Task } from "@/lib/types"
+import type { Project, ProjectData } from "@/lib/types"
 
 async function fetcher<T>(url: string): Promise<T> {
   const response = await apiFetch(url)
@@ -22,11 +22,6 @@ export function useProjectData(projectId: string | null) {
   })
 }
 
-export function useCompletedTasks() {
-  return useSWR("/api/completed", fetcher<Task[]>, {
-    revalidateOnFocus: false,
-  })
-}
 
 export function useAllProjectsData(projects?: Project[]) {
   const key = projects?.length
