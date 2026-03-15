@@ -43,40 +43,17 @@ async function loadCliToken(): Promise<string | null> {
   return cachedCliToken
 }
 
-async function privateRequest<T>(path: string, fallbackToken?: string): Promise<T | null> {
-  const cliToken = await loadCliToken()
+async function privateRequest<T>(path: string): Promise<T | null> {
+  const token = await loadCliToken()
+  if (!token) return null
 
-  // Try CLI session cookie first
-  if (cliToken) {
-    const response = await fetch(`${PRIVATE_API_BASE}${path}`, {
-      headers: { ...PRIVATE_HEADERS, Cookie: `t=${cliToken}` },
-      cache: "no-store",
-    })
-    if (response.ok) {
-      const text = await response.text()
-      return text ? (JSON.parse(text) as T) : null
-    }
-  }
-
-  if (!fallbackToken) return null
-
-  // Try OAuth token as Bearer (works when Dida365 accepts it on private endpoints)
-  const bearerResponse = await fetch(`${PRIVATE_API_BASE}${path}`, {
-    headers: { ...PRIVATE_HEADERS, Authorization: `Bearer ${fallbackToken}` },
+  const response = await fetch(`${PRIVATE_API_BASE}${path}`, {
+    headers: { ...PRIVATE_HEADERS, Cookie: `t=${token}` },
     cache: "no-store",
   })
-  if (bearerResponse.ok) {
-    const text = await bearerResponse.text()
-    return text ? (JSON.parse(text) as T) : null
-  }
 
-  // Last resort: try OAuth token as session cookie
-  const cookieResponse = await fetch(`${PRIVATE_API_BASE}${path}`, {
-    headers: { ...PRIVATE_HEADERS, Cookie: `t=${fallbackToken}` },
-    cache: "no-store",
-  })
-  if (!cookieResponse.ok) return null
-  const text = await cookieResponse.text()
+  if (!response.ok) return null
+  const text = await response.text()
   return text ? (JSON.parse(text) as T) : null
 }
 
@@ -157,16 +134,6 @@ export class DidaClient {
   }
 
   async getInboxId(): Promise<string | null> {
-    // Manual override via environment variable
-    const envInboxId = process.env.DIDA_INBOX_ID
-    if (envInboxId) return envInboxId
-
-    // Try CLI session token against the private API (works locally)
-    const privateData = await privateRequest<{ inboxId?: string }>("/batch/check/0")
-    if (privateData?.inboxId) return privateData.inboxId
-
-    // Use the open API "inbox" alias to discover the real inbox ID from task data.
-    // Falls back to the literal "inbox" ID if the inbox is empty.
     try {
       const data = await this.request<{ tasks?: Array<{ projectId?: string }> }>(
         "GET",
