@@ -44,17 +44,39 @@ async function loadCliToken(): Promise<string | null> {
 }
 
 async function privateRequest<T>(path: string, fallbackToken?: string): Promise<T | null> {
-  const token = (await loadCliToken()) ?? fallbackToken
-  if (!token) return null
+  const cliToken = await loadCliToken()
 
-  const response = await fetch(`${PRIVATE_API_BASE}${path}`, {
-    headers: { ...PRIVATE_HEADERS, Cookie: `t=${token}` },
+  // Try CLI session cookie first
+  if (cliToken) {
+    const response = await fetch(`${PRIVATE_API_BASE}${path}`, {
+      headers: { ...PRIVATE_HEADERS, Cookie: `t=${cliToken}` },
+      cache: "no-store",
+    })
+    if (response.ok) {
+      const text = await response.text()
+      return text ? (JSON.parse(text) as T) : null
+    }
+  }
+
+  if (!fallbackToken) return null
+
+  // Try OAuth token as Bearer (works when Dida365 accepts it on private endpoints)
+  const bearerResponse = await fetch(`${PRIVATE_API_BASE}${path}`, {
+    headers: { ...PRIVATE_HEADERS, Authorization: `Bearer ${fallbackToken}` },
     cache: "no-store",
   })
+  if (bearerResponse.ok) {
+    const text = await bearerResponse.text()
+    return text ? (JSON.parse(text) as T) : null
+  }
 
-  if (!response.ok) return null
-
-  const text = await response.text()
+  // Last resort: try OAuth token as session cookie
+  const cookieResponse = await fetch(`${PRIVATE_API_BASE}${path}`, {
+    headers: { ...PRIVATE_HEADERS, Cookie: `t=${fallbackToken}` },
+    cache: "no-store",
+  })
+  if (!cookieResponse.ok) return null
+  const text = await cookieResponse.text()
   return text ? (JSON.parse(text) as T) : null
 }
 
