@@ -157,13 +157,26 @@ export class DidaClient {
   }
 
   async getInboxId(): Promise<string | null> {
-    // Allow overriding via environment variable (useful for Vercel deployments
-    // where the local CLI token file is not available)
+    // Manual override via environment variable
     const envInboxId = process.env.DIDA_INBOX_ID
     if (envInboxId) return envInboxId
 
-    const data = await privateRequest<{ inboxId?: string }>("/batch/check/0", this.accessToken)
-    return data?.inboxId ?? null
+    // Try CLI session token against the private API (works locally)
+    const privateData = await privateRequest<{ inboxId?: string }>("/batch/check/0")
+    if (privateData?.inboxId) return privateData.inboxId
+
+    // Derive inbox ID from user profile via the open API (works on Vercel)
+    try {
+      const profile = await this.request<{ userId?: string; username?: string }>(
+        "GET",
+        "/open/v1/user/me",
+      )
+      if (profile?.userId) return `inbox${profile.userId}`
+    } catch {
+      // endpoint may not exist or token may be invalid; fall through
+    }
+
+    return null
   }
 
   async getCompletedTasks(from: string, to: string, limit = 100): Promise<Task[]> {
